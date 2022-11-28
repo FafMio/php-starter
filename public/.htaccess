@@ -1,0 +1,14 @@
+# URL rewriting :
+
+# On active tout d'abord la réécriture d'URL
+RewriteEngine On
+
+# Redirige chaque requête vers index.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]
+
+# Apache va nous permettre de récupérer la partie statique
+# du site
+RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+RewriteRule ^(.*) - [E=BASE_URI:%1]
