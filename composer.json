@@ -1,9 +1,10 @@
 {
-    "require": {
-        "altorouter/altorouter": "^2.0",
-        "symfony/var-dumper": "^6.0",
-        "vlucas/phpdotenv": "^5.4",
-        "symfony/http-client": "^6.0",
-        "twig/twig": "^3.4"
-    }
+  "require": {
+    "altorouter/altorouter": "^2.0",
+    "symfony/var-dumper": "^6.0",
+    "vlucas/phpdotenv": "^5.4",
+    "symfony/http-client": "^6.0",
+    "twig/twig": "^3.4",
+    "ext-pdo": "*"
+  }
 }
