@@ -9,6 +9,10 @@ $match = $router->get()->match();
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . './../');
 $dotenv->load();
 
+session_start();
+$session = new Session();
+$account = new AccountUtils($session);
+
 if ($match !== false) {
     $routerData = $match['target'];
 
@@ -16,7 +20,10 @@ if ($match !== false) {
     $methodName = $routerData['method'];
     $arguments = $match['params'];
 
-    $arguments['router'] = $router;
+    $arguments['router'] = $router->get();
+    $arguments['session'] = $session;
+    $arguments['account'] = $account;
+    $arguments['env'] = $dotenv;
 
     $controller = new $controllerName($arguments);
     $controller->$methodName($arguments);
