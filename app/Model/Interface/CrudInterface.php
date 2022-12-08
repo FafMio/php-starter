@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Interface;
+namespace Interface;
 
 interface CrudInterface {
     public function exist(int $id);

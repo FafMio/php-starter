@@ -1,8 +1,8 @@
 <?php
 
-use App\Controller\MainController;
-use App\Util\AccountUtils;
-use App\Util\Session;
+use Controller\MainController;
+use Util\AccountUtils;
+use Util\Session;
 use AttributesRouter\Router;
 use Dotenv\Dotenv;
 
@@ -23,8 +23,6 @@ $dotenv = Dotenv::createImmutable(__DIR__ . './../');
 $dotenv->load();
 
 if ($match !== false) {
-    $routerData = $match['target'];
-
     $params = $match['params'];
 
     $params['router'] = $router;

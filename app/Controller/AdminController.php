@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller;
+namespace Controller;
 
-use App\Controller\CoreController;
+use Controller\CoreController;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Manager;
+namespace Manager;
 
-use App\Interface\CrudInterface;
-use App\Model\User;
-use App\Util\Database;
+use Interface\CrudInterface;
+use Model\User;
+use Util\Database;
 use PDO;
 
 class UserManager extends Database implements CrudInterface
