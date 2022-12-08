@@ -4,67 +4,51 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba2d8e6bed1e135a2d18ce5444426016",
+    "content-hash": "0bdcaabd0940af27c5797b337bb8b5a4",
     "packages": [
         {
-            "name": "altorouter/altorouter",
-            "version": "2.0.2",
+            "name": "eredost/attributes-router",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/dannyvankooten/AltoRouter.git",
-                "reference": "f6fede4f94ced7c22ba63a9b8af0bf2dc38e3cb2"
+                "url": "https://github.com/Eredost/attributes-router.git",
+                "reference": "3ed6ff8d0a989efaa4868f6173c785ff91f6db17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dannyvankooten/AltoRouter/zipball/f6fede4f94ced7c22ba63a9b8af0bf2dc38e3cb2",
-                "reference": "f6fede4f94ced7c22ba63a9b8af0bf2dc38e3cb2",
+                "url": "https://api.github.com/repos/Eredost/attributes-router/zipball/3ed6ff8d0a989efaa4868f6173c785ff91f6db17",
+                "reference": "3ed6ff8d0a989efaa4868f6173c785ff91f6db17",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6.0"
+                "php": "~8.0"
             },
             "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "phpunit/phpunit": "5.7.*",
-                "squizlabs/php_codesniffer": "3.4.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "AltoRouter.php"
-                ]
+                "psr-4": {
+                    "AttributesRouter\\": "src/"
+                }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "AttributesRouter\\Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
-            "authors": [
-                {
-                    "name": "Danny van Kooten",
-                    "email": "dannyvankooten@gmail.com",
-                    "homepage": "http://dannyvankooten.com/"
-                },
-                {
-                    "name": "Koen Punt",
-                    "homepage": "https://github.com/koenpunt"
-                },
-                {
-                    "name": "niahoo",
-                    "homepage": "https://github.com/niahoo"
-                }
-            ],
-            "description": "A lightning fast router for PHP",
-            "homepage": "https://github.com/dannyvankooten/AltoRouter",
+            "description": "Simple router that uses the attributes of PHP",
             "keywords": [
-                "lightweight",
-                "router",
-                "routing"
+                "router"
             ],
             "support": {
-                "issues": "https://github.com/dannyvankooten/AltoRouter/issues",
-                "source": "https://github.com/dannyvankooten/AltoRouter/tree/2.0.2"
+                "source": "https://github.com/Eredost/attributes-router/tree/1.0.2",
+                "issues": "https://github.com/Eredost/attributes-router/issues"
             },
-            "time": "2020-03-09T08:34:59+00:00"
+            "time": "2022-10-03T19:10:30+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -1053,7 +1037,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-pdo": "*"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
 }

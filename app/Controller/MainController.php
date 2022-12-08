@@ -1,10 +1,15 @@
 <?php
 
+namespace App\Controller;
+
+use AttributesRouter\Attribute\Route;
+
 class MainController extends CoreController {
 
+    #[Route('/', name: 'homepage', methods: ['GET'])]
     public function home($arguments = [])
     {
-        $this->show('pages/home.html.twig', $arguments);
+        $this->show('pages/home.twig', $arguments);
     }
 
 

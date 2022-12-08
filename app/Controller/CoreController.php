@@ -1,5 +1,8 @@
 <?php
 
+namespace App\Controller;
+
+use AttributesRouter\Router;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -24,8 +27,8 @@ class CoreController
             dump($var);
         }));
 
-        $twig->addFunction(new TwigFunction('route', function (AltoRouter $router, string $route, $parameters = []) {
-           return $router->generate($route, $parameters);
+        $twig->addFunction(new TwigFunction('route', function (Router $router, string $route, $parameters = []) {
+           return $router->generateUrl($route, $parameters);
         }));
 
 
@@ -35,6 +38,15 @@ class CoreController
 //        $twig->addFunction('path', $path);
 
         echo $twig->render($viewName, $viewData);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function page404() {
+        $this->show('404.html.twig');
     }
 
 
