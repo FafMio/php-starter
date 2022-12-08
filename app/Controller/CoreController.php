@@ -12,7 +12,6 @@ use Twig\TwigFunction;
 
 class CoreController
 {
-
     /**
      * @throws RuntimeError
      * @throws SyntaxError
@@ -30,12 +29,6 @@ class CoreController
         $twig->addFunction(new TwigFunction('route', function (Router $router, string $route, $parameters = []) {
            return $router->generateUrl($route, $parameters);
         }));
-
-
-//        $path = new TwigFunction('path', function (string $routeId, array $parameters) {
-//
-//        });
-//        $twig->addFunction('path', $path);
 
         echo $twig->render($viewName, $viewData);
     }
