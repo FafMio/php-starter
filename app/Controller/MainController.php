@@ -14,6 +14,6 @@ class MainController extends CoreController {
 
 
     public function page404() {
-        $this->show('404.html.twig');
+        header('HTTP/1.0 404 Not Found');
     }
 }
