@@ -3,17 +3,39 @@
 namespace Controller;
 
 use AttributesRouter\Attribute\Route;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class MainController extends CoreController {
 
-    #[Route('/', name: 'homepage', methods: ['GET'])]
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[Route('/', name: 'main-home', methods: ['GET'])]
     public function home($arguments = [])
     {
+        $session = $arguments['session'];
+        $session->account = "coucou";
+
         $this->show('pages/home.twig', $arguments);
     }
 
 
-    public function page404() {
-        header('HTTP/1.0 404 Not Found');
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[Route('/session', name: 'main-home-session', methods: ['GET'])]
+    public function session($arguments = [])
+    {
+        $session = $arguments['session'];
+
+        dump($session->account);
+
+        $this->show('pages/home.twig', $arguments);
     }
 }

@@ -1,0 +1,41 @@
+{% extends "base.twig" %}
+
+{% block title %}
+    Créer un compte - {{ parent }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mx-auto mt-5 text-center">
+                <form method="post">
+                    <img class="mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
+                    <h1 class="h3 mb-3 fw-normal">Inscription</h1>
+
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="john.doe@example.com">
+                        <label for="email">Adresse email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John">
+                        <label for="firstname">Prénom</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe">
+                        <label for="lastname">Nom</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                        <label for="password">Mot de passe</label>
+                    </div>
+
+                    <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">S'inscrire</button>
+                    <a href="{{ route(router, 'session-login') }}" class="btn btn-secondary btn-sm mb-3 w-100">J'ai déjà un compte</a>
+                    <a href="{{ route(router, 'main-home') }}" class="btn btn-link mb-3">Retour à l'accueil</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

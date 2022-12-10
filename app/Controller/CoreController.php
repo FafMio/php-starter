@@ -22,8 +22,8 @@ class CoreController
         $loader = new FilesystemLoader(__DIR__ . './../Views');
         $twig = new Environment($loader);
 
-        $twig->addFunction(new TwigFunction('dump', function (mixed $var) {
-            dump($var);
+        $twig->addFunction(new TwigFunction('dump', function (mixed $var, mixed ...$vars) {
+            dump($var, $vars);
         }));
 
         $twig->addFunction(new TwigFunction('route', function (Router $router, string $route, $parameters = []) {
@@ -38,8 +38,9 @@ class CoreController
      * @throws RuntimeError
      * @throws LoaderError
      */
-    public function page404() {
-        $this->show('404.html.twig');
+    public function page404($arguments = []) {
+        header('HTTP/1.0 404 Not Found');
+        $this->show('404.twig', $arguments);
     }
 
 

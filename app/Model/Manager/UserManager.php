@@ -1,8 +1,8 @@
 <?php
 
-namespace Manager;
+namespace Model\Manager;
 
-use Interface\CrudInterface;
+use Model\Interface\CrudInterface;
 use Model\User;
 use Util\Database;
 use PDO;
@@ -10,81 +10,80 @@ use PDO;
 class UserManager extends Database implements CrudInterface
 {
 
-    public function exist($email): bool
+    public function exist(string $email): bool
     {
-        return (bool) $this->sql("SELECT * FROM administrators AS a WHERE a.email=:email", ['email' => $email])->fetch();
+        return $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $email])->fetch();
     }
 
-    public function get($id): ?User
+    public function get(string $email): ?User
     {
-        return $this->sql("SELECT * FROM administrators WHERE id_Administrator=:id", ['id' => $id], [PDO::FETCH_CLASS, 'User'])->fetch();
+        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE id=:id", ['id' => $email], [PDO::FETCH_CLASS, 'User'])->fetch();
     }
 
     public function getAll(int $limit, int $offset, array $data): ?array
     {
-        return $this->sql("SELECT * FROM administrators WHERE 1", [], [PDO::FETCH_CLASS, 'User'])->fetchAll();
+        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE 1", [], [PDO::FETCH_CLASS, 'User'])->fetchAll();
     }
 
-    public function add($obj): ?User
+    public function add(User $obj): ?User
     {
         $this->sql(
-            "INSERT INTO administrators (email, forname, surname, password) VALUES(:email, :forname, :surname, :password)",
+            "INSERT INTO user (email, firstname, lastname, password) VALUES(:email, :firstname, :lastname, :password)",
             [
                 'email' => $obj->getEmail(),
-                'forname' => $obj->getForname(),
-                'surname' => $obj->getSurname(),
+                'firstname' => $obj->getFirstname(),
+                'lastname' => $obj->getLastname(),
                 'password' => $obj->getPassword(),
             ]
         );
-        $obj->setidAdministrator($this->getDatabase()->lastInsertId());
+        $obj->setIdUser($this->getDatabase()->lastInsertId());
         return $obj;
     }
 
-    public function del($obj): bool
+    public function del(User $obj): bool
     {
-        if ($this->sql("DELETE FROM administrators WHERE id_Administrator=:id", ['id' => $obj->getidAdministrator()])->fetch()) return true;
+        if ($this->sql("DELETE FROM user WHERE id=:id", ['id' => $obj->getIdUser()])->fetch()) return true;
         else return false;
     }
 
-    public function update($f_admin): bool
+    public function update(User $obj): ?User
     {
         if ($this->sql(
-            "UPDATE administrators SET :email, :forname, :surname, :password WHERE id_Administrator=:id",
+            "UPDATE user SET :email, :firstname, :lastname WHERE id=:id",
             [
-                'id' => $f_admin->getidAdministrator(),
-                'email' => $f_admin->getEmail(),
-                'forname' => $f_admin->getForname(),
-                'surname' => $f_admin->getSurname(),
-                'password' => $f_admin->getPassword(),
+                'id' => $obj->getIdUser(),
+                'email' => $obj->getEmail(),
+                'firstname' => $obj->getFirstname(),
+                'lastname' => $obj->getLastname(),
             ]
-        )->fetch()) return true;
-        else return false;
+        )->fetch()) return $obj;
+        else return null;
     }
 
-    public function checkCredentials($f_email, $f_password): bool
+    public function checkCredentials(string $f_email, string $f_password): bool
     {
-        $userExist = $this->sql("SELECT a.email FROM administrators AS a WHERE a.email=:email LIMIT 1", ['email' => $f_email])->fetch();
+        $userExist = $this->sql("SELECT a.email FROM user AS a WHERE a.email=:email LIMIT 1", ['email' => $f_email])->fetch();
 
         if (!empty($userExist)) {
-            $data = $this->sql("SELECT a.email, a.password FROM administrators AS a WHERE a.email=:email LIMIT 1", ['email' => $f_email])->fetch();
+            $data = $this->sql("SELECT a.email, a.password FROM user AS a WHERE a.email=:email LIMIT 1", ['email' => $f_email])->fetch();
             if (password_verify($f_password, $data['password'])) {
                 return true;
             } else return false;
         } else return false;
     }
 
-    public function getFromEmail($f_email): ?User
+    public function getFromEmail(string $f_email): ?User
     {
-        return $this->sql("SELECT * FROM administrators WHERE email=:email", ['email' => $f_email], [PDO::FETCH_CLASS, 'User'])->fetch();
+        return $this->sql("SELECT * EXCEPT(passwprd) FROM user WHERE email=:email", ['email' => $f_email], [PDO::FETCH_CLASS, 'User'])->fetch();
     }
 
-    public function changePassword($f_old, $f_admin, $f_new = []): int
-    { //$this->sql("SELECT password FROM administrators WHERE email=:email LIMIT 1", ['email' => $f_admin->getPassword()])->fetch()['password']
+    public function changePassword(string $f_old, User $f_admin, $f_new = []): int
+    { //$this->sql("SELECT password FROM user WHERE email=:email LIMIT 1", ['email' => $f_admin->getPassword()])->fetch()['password']
         if (password_verify($f_old, $f_admin->getPassword())) {
             if (isset($f_new[0]) && isset($f_new[1])) {
                 if ($f_new[0] == $f_new[1]) {
                     if ($f_old !== $f_new) {
-                        if ($this->sql("UPDATE administrators SET password=:new WHERE email=:email", ['email' => $f_admin->getEmail(), 'new' => password_hash($f_new[1], PASSWORD_DEFAULT)])) return 5;
+                        if ($this->sql("UPDATE user SET password=:new WHERE email=:email", ['email' => $f_admin->getEmail(), 'new' => password_hash($f_new[1], PASSWORD_DEFAULT)])) return 5;
                         else return 4;
                     } else return 3;
                 } else return 2;
@@ -95,7 +94,7 @@ class UserManager extends Database implements CrudInterface
     public function register($f_admin): int
     {
         if (!$this->exist($f_admin->getEmail())) {
-            if($this->sql("INSERT INTO administrators (email, forname, surname, password) VALUES (:email, :forname, :surname, :password)", ['email' => $f_admin->getEmail(), 'forname' => $f_admin->getForname(), 'surname' => $f_admin->getSurname(), 'password' => password_hash($f_admin->getPassword(), PASSWORD_DEFAULT)])) return 2;
+            if($this->sql("INSERT INTO user (email, firstname, lastname, password) VALUES (:email, :firstname, :lastname, :password)", ['email' => $f_admin->getEmail(), 'firstname' => $f_admin->getFirstname(), 'lastname' => $f_admin->getLastname(), 'password' => password_hash($f_admin->getPassword(), PASSWORD_DEFAULT)])) return 2;
             else return 1; //? L'utilisateur n'a pas pu être inséré dans la BDD
         } else return 0; //? Le mail existe déjà en bdd
     }

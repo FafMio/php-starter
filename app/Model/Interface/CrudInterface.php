@@ -1,16 +1,18 @@
 <?php
 
-namespace Interface;
+namespace Model\Interface;
+
+use Model\User;
 
 interface CrudInterface {
-    public function exist(int $id);
+    public function exist(string $email);
 
-    public function get($id);
-    public function getAll(int $limit, int $offset, array $data);
+    public function get(string $email): ?User;
+    public function getAll(int $limit, int $offset, array $data): mixed;
 
-    public function add($obj);
-    public function del($obj);
+    public function add(User $obj): ?User;
+    public function del(User $obj): bool;
 
-    public function update($obj);
+    public function update(User $obj): ?User;
 
 }

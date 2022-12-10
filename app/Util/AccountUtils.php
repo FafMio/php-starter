@@ -2,9 +2,11 @@
 
 namespace Util;
 
+use Model\User;
+
 class AccountUtils {
 
-    private $session;
+    private Session $session;
 
     public function __construct($session)
     {
@@ -27,5 +29,9 @@ class AccountUtils {
     public function logout() {
         session_destroy();
         header('Location: /login');
+    }
+
+    public function login(User $user) {
+        $this->session->loggedIn = $user;
     }
 }

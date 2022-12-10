@@ -1,11 +1,21 @@
-<!doctype html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>404</title>
-</head>
-<body>
-<h1>Erreur 404</h1>
-<p>La page demandée n'exsite pas.</p>
-</body>
-</html>
+{% extends "base.twig" %}
+
+{% block title %}404 Oops - {{ parent() }}{% endblock %}
+
+{% block header %}{% endblock %}
+{% block meta %}{% endblock %}
+
+
+{% block content %}
+    <div class="d-flex flex-column align-items-center justify-content-center vh-100 bg-dark">
+        <h1 class="display-1 fw-bold text-white">404</h1>
+        <hr class="col-3 col-md-2 mb-4 text-white-50">
+        <p class="fw-bolder text-white fs-4">Page ou ressource introuvable</p>
+        <a href="{{ route(router, 'main-home') }}">Retourner à l'accueil</a>
+    </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+{% block scripts %}{% endblock %}
+
+

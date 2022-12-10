@@ -1,5 +1,6 @@
 <?php
 
+use Controller\CoreController;
 use Controller\MainController;
 use Controller\AdminController;
 use Controller\SessionController;
@@ -21,7 +22,7 @@ try {
         SessionController::class
     ]);
 } catch (ReflectionException $e) {
-    dump($e);
+    dump($e->getMessage());
 }
 $match = $router->match();
 
@@ -39,6 +40,8 @@ if ($match) {
     $controller = new $match['class']();
     $controller->{$match['method']}($params);
 } else {
-    $controller = new MainController();
-    $controller->page404();
+    $params['router'] = $router;
+
+    $controller = new CoreController();
+    $controller->page404($params);
 }
