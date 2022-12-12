@@ -13,7 +13,20 @@
 
             <h1>Mon compte</h1>
 
+            <div class="row mt-5">
+                <div class="col-5">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder=" " value="{{ session.loggedIn.firstname }}" readonly>
+                        <label for="firstname">Prénom</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder=" " value="{{ session.loggedIn.lastname }}" readonly>
+                        <label for="lastname">nom</label>
+                    </div>
 
+                    <button type="button" class="btn btn-primary" disabled>Modifier mes informations</button>
+                </div>
+            </div>
 
         </div>
     </main>
