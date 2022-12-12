@@ -4,7 +4,7 @@ namespace Model;
 
 class User {
 
-    private ?string $id_User;
+    private ?string $id;
     private string $email;
     private string $firstname;
     private string $lastname;
@@ -20,9 +20,14 @@ class User {
         }
     }
 
-    public function __construct5($id_User = null, $email, $firstname, $lastname, $password)
+    public function __construct0()
     {
-        $this->idUser = $id_User;
+
+    }
+
+    public function __construct5($id, $email, $firstname, $lastname, $password)
+    {
+        $this->id = $id;
         $this->email = $email;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
@@ -31,7 +36,7 @@ class User {
 
     public function __construct4($email, $firstname, $lastname, $password)
     {
-        $this->idUser = null;
+        $this->id = null;
         $this->email = $email;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
@@ -47,15 +52,15 @@ class User {
      */
     public function getIdUser()
     {
-        return $this->id_User;
+        return $this->id;
     }
 
     /**
-     * @param mixed $id_User
+     * @param mixed $id
      */
-    public function setIdUser($id_User): void
+    public function setIdUser($id): void
     {
-        $this->id_User = $id_User;
+        $this->id = $id;
     }
 
     /**

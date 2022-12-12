@@ -1,0 +1,21 @@
+{% extends "base.twig" %}
+
+{% block header %}{% endblock header %}
+
+{% block title %}
+    Mon compte - {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="col-lg-8 mx-auto p-3 py-md-5">
+            {% include 'partials/header.twig' %}
+
+            <h1>Mon compte</h1>
+
+
+
+        </div>
+    </main>
+{% endblock %}
+

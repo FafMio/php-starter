@@ -12,7 +12,7 @@ class UserManager extends Database implements CrudInterface
 
     public function exist(string $email): bool
     {
-        return $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $email])->fetch();
+        return (bool) $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $email])->fetch();
     }
 
     public function get(string $email): ?User
@@ -72,9 +72,9 @@ class UserManager extends Database implements CrudInterface
         } else return false;
     }
 
-    public function getFromEmail(string $f_email): ?User
+    public function getFromEmail(string $f_email): User|bool
     {
-        return $this->sql("SELECT * EXCEPT(passwprd) FROM user WHERE email=:email", ['email' => $f_email], [PDO::FETCH_CLASS, 'User'])->fetch();
+        return $this->sql("SELECT * FROM user WHERE email=:email", ['email' => $f_email], [PDO::FETCH_CLASS, User::class])->fetch();
     }
 
     public function changePassword(string $f_old, User $f_admin, $f_new = []): int
@@ -83,12 +83,12 @@ class UserManager extends Database implements CrudInterface
             if (isset($f_new[0]) && isset($f_new[1])) {
                 if ($f_new[0] == $f_new[1]) {
                     if ($f_old !== $f_new) {
-                        if ($this->sql("UPDATE user SET password=:new WHERE email=:email", ['email' => $f_admin->getEmail(), 'new' => password_hash($f_new[1], PASSWORD_DEFAULT)])) return 5;
-                        else return 4;
+                        if ($this->sql("UPDATE user SET password=:new WHERE email=:email", ['email' => $f_admin->getEmail(), 'new' => password_hash($f_new[1], PASSWORD_DEFAULT)])) return 5; // Ca marche !
+                        else return 4; // Y'a un pépin
                     } else return 3;
-                } else return 2;
-            } else return 1;
-        } else return 0;
+                } else return 2; // Les deux nouveaux ne sont pas pareils
+            } else return 1; // Il manque les 2 nouveaux
+        } else return 0; // Mauvais mot de passe actuel
     }
 
     public function register($f_admin): int

@@ -1,7 +1,7 @@
 {% extends "base.twig" %}
 
 {% block title %}
-    Créer un compte - {{ parent }}
+    Créer un compte - {{ parent() }}
 {% endblock %}
 
 {% block content %}
@@ -9,25 +9,48 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-4 mx-auto mt-5 text-center">
-                <form method="post">
-                    <img class="mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
+                <form method="post" class="needs-validation" novalidate>
+                    <img class="mb-4" src="https://static.hephe.net/images/profile/sylweb_logo.svg" alt="" width="72"
+                         height="57">
                     <h1 class="h3 mb-3 fw-normal">Inscription</h1>
 
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="email" name="email" placeholder="john.doe@example.com">
+                    {% if error is not empty %}
+                        {% for err in error %}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                {{ err|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if success is not empty %}
+                        {% for succ in success %}
+                            <div class="alert alert-dismissible alert-success">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                {{ succ|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="form-floating mb-3 has-validation">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="john.doe@example.com" required>
                         <label for="email">Adresse email</label>
+                        <div class="invalid-feedback">Veuillez rentrer un email valide.</div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John">
+                    <div class="form-floating mb-3 has-validation">
+                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
                         <label for="firstname">Prénom</label>
+                        <div class="invalid-feedback">Veuillez rentrer votre prénom.</div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe">
+                    <div class="form-floating mb-3 has-validation">
+                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
                         <label for="lastname">Nom</label>
+                        <div class="invalid-feedback">Veuillez rentrer votre nom.</div>
                     </div>
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                    <div class="form-floating mb-3 has-validation">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                         <label for="password">Mot de passe</label>
+                        <div class="invalid-feedback">Veuillez rentrer mot de passe.</div>
                     </div>
 
                     <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">S'inscrire</button>

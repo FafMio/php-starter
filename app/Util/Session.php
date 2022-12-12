@@ -4,8 +4,8 @@ namespace Util;
 
 class Session
 {
-    private $attributs = [];
-    private $sleepingtime = null;
+    private array $attributs = [];
+    private ?int $sleepingtime = null;
 
     public function __construct()
     {

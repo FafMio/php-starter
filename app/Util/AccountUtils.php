@@ -26,12 +26,19 @@ class AccountUtils {
         }
     }
 
-    public function logout() {
+    public function logout(?string $fallback_route = "/login") {
         session_destroy();
-        header('Location: /login');
+        if($fallback_route !== null) {
+            header('Location: ' . $fallback_route);
+        }
     }
 
     public function login(User $user) {
         $this->session->loggedIn = $user;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->session->loggedIn;
     }
 }
