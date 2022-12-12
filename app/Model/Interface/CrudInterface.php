@@ -5,9 +5,9 @@ namespace Model\Interface;
 use Model\User;
 
 interface CrudInterface {
-    public function exist(string $email);
+    public function exist(string $obj);
 
-    public function get(string $email): ?User;
+    public function get(string $obj): ?User;
     public function getAll(int $limit, int $offset, array $data): mixed;
 
     public function add(User $obj): ?User;

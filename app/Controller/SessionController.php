@@ -173,4 +173,43 @@ class SessionController extends CoreController
         $this->show('pages/admin/account/change-password.twig', $arguments);
     }
 
+    #[Route('/reset-password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
+    public function reset($arguments = [])
+    {
+        $as = new AccountUtils($arguments['session']);
+
+        if ($as->isConnected()) {
+            header('Location: ' . $arguments['router']->generateUrl('session-account'));
+        }
+
+        if ($post = $_POST ?? null) {
+            $email = $post['email'];
+
+            if ((isset($email) && !empty($email))) {
+                $arguments['success'][] = 'Si un compte existe avec cette adresse email, vous aller recevoir un mail contenant un lien permanent de changer votre mot de passe.';
+            }
+        }
+
+        $this->show('pages/admin/reset.twig', $arguments);
+    }
+
+    #[Route('/reset-password/{:token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
+    public function resetToken($arguments = [])
+    {
+        $as = new AccountUtils($arguments['session']);
+
+        if ($as->isConnected()) {
+            header('Location: ' . $arguments['router']->generateUrl('session-account'));
+        }
+
+        if ($post = $_POST ?? null) {
+            $email = $post['email'];
+
+            if ((isset($email) && !empty($email))) {
+                $arguments['success'][] = 'Si un compte existe avec cette adresse email, vous aller recevoir un mail contenant un lien permanent de changer votre mot de passe.';
+            }
+        }
+
+        $this->show('pages/admin/reset.twig', $arguments);
+    }
 }

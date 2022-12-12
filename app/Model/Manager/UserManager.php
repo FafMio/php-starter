@@ -10,14 +10,14 @@ use PDO;
 class UserManager extends Database implements CrudInterface
 {
 
-    public function exist(string $email): bool
+    public function exist(string $obj): bool
     {
-        return (bool) $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $email])->fetch();
+        return (bool) $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $obj])->fetch();
     }
 
-    public function get(string $email): ?User
+    public function get(string $obj): ?User
     {
-        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE id=:id", ['id' => $email], [PDO::FETCH_CLASS, 'User'])->fetch();
+        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE id=:id", ['id' => $obj], [PDO::FETCH_CLASS, 'User'])->fetch();
     }
 
     public function getAll(int $limit, int $offset, array $data): ?array

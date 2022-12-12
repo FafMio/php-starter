@@ -11,20 +11,30 @@
         <div class="col-lg-8 mx-auto p-3 py-md-5">
             {% include 'partials/header.twig' %}
 
-            <h1>Mon compte</h1>
 
-            <div class="row mt-5">
-                <div class="col-5">
+            <div class="row">
+                <div class="col-6 mx-auto">
+                    <h1 class="mb-5">Mon compte</h1>
+
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder=" " value="{{ session.loggedIn.firstname }}" readonly>
+                        <input type="text" class="form-control" id="firstname" name="firstname" placeholder=" "
+                               value="{{ session.loggedIn.firstname }}" readonly>
                         <label for="firstname">Prénom</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder=" " value="{{ session.loggedIn.lastname }}" readonly>
-                        <label for="lastname">nom</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" placeholder=" "
+                               value="{{ session.loggedIn.lastname }}" readonly>
+                        <label for="lastname">Nom</label>
                     </div>
 
-                    <button type="button" class="btn btn-primary" disabled>Modifier mes informations</button>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary disabled" disabled>Modifier mes informations
+                        </button>
+                        <a href="{{ route(router, 'session-changepassword') }}" class="btn btn-dark">Modifier mon mot de
+                            passe</a>
+                        <a href="{{ route(router, 'session-logout') }}" class="btn btn-outline-danger">Se
+                            deconnecter</a>
+                    </div>
                 </div>
             </div>
 
