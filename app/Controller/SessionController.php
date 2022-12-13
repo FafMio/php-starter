@@ -5,6 +5,7 @@ namespace Controller;
 use AttributesRouter\Attribute\Route;
 use Model\Manager\UserManager;
 use Model\User;
+use Service\Mailer;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -173,10 +174,18 @@ class SessionController extends CoreController
         $this->show('pages/admin/account/change-password.twig', $arguments);
     }
 
+    /**
+     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     #[Route('/reset-password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
     public function reset($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
+        $um = new UserManager();
+        $m = new Mailer();
 
         if ($as->isConnected()) {
             header('Location: ' . $arguments['router']->generateUrl('session-account'));
@@ -186,14 +195,19 @@ class SessionController extends CoreController
             $email = $post['email'];
 
             if ((isset($email) && !empty($email))) {
+                if ($um->exist($email)) {
+                    $m->sendResetPasswordLink($um->getFromEmail($email), $arguments['router']);
+                }
+
                 $arguments['success'][] = 'Si un compte existe avec cette adresse email, vous aller recevoir un mail contenant un lien permanent de changer votre mot de passe.';
+                $arguments['success'][] = 'Pensez à vérifier votre boîte de SPAM (courrier indésirable).';
             }
         }
 
         $this->show('pages/admin/reset.twig', $arguments);
     }
 
-    #[Route('/reset-password/{:token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
+    #[Route('/reset-password/{token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
     public function resetToken($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
@@ -210,6 +224,5 @@ class SessionController extends CoreController
             }
         }
 
-        $this->show('pages/admin/reset.twig', $arguments);
     }
 }

@@ -11,14 +11,13 @@ use Dotenv\Dotenv;
 
 session_start();
 
-require_once __DIR__ . './../vendor/autoload.php';
-require_once __DIR__ . './../app/autoloader.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../app/autoloader.php';
 
 $router = null;
 try {
     $router = new Router([
         MainController::class,
-        AdminController::class,
         SessionController::class
     ]);
 } catch (ReflectionException $e) {
@@ -26,7 +25,7 @@ try {
 }
 $match = $router->match();
 
-$dotenv = Dotenv::createImmutable(__DIR__ . './../');
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 if ($match) {

@@ -5,7 +5,9 @@
     "symfony/http-client": "^6.0",
     "twig/twig": "^3.4",
     "ext-pdo": "*",
-    "eredost/attributes-router": "^1.0"
+    "eredost/attributes-router": "^1.0",
+    "phpmailer/phpmailer": "^6.7",
+    "ramsey/uuid": "^4.6"
   },
   "repositories": [
     {

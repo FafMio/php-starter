@@ -4,15 +4,16 @@ namespace Model\Manager;
 
 use Model\Interface\CrudInterface;
 use Model\User;
-use Util\Database;
 use PDO;
+use Ramsey\Uuid\Uuid;
+use Util\Database;
 
 class UserManager extends Database implements CrudInterface
 {
 
     public function exist(string $obj): bool
     {
-        return (bool) $this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $obj])->fetch();
+        return (bool)$this->sql("SELECT * FROM user AS a WHERE a.email=:email", ['email' => $obj])->fetch();
     }
 
     public function get(string $obj): ?User
@@ -94,8 +95,18 @@ class UserManager extends Database implements CrudInterface
     public function register($f_admin): int
     {
         if (!$this->exist($f_admin->getEmail())) {
-            if($this->sql("INSERT INTO user (email, firstname, lastname, password) VALUES (:email, :firstname, :lastname, :password)", ['email' => $f_admin->getEmail(), 'firstname' => $f_admin->getFirstname(), 'lastname' => $f_admin->getLastname(), 'password' => password_hash($f_admin->getPassword(), PASSWORD_DEFAULT)])) return 2;
+            if ($this->sql("INSERT INTO user (email, firstname, lastname, password) VALUES (:email, :firstname, :lastname, :password)", ['email' => $f_admin->getEmail(), 'firstname' => $f_admin->getFirstname(), 'lastname' => $f_admin->getLastname(), 'password' => password_hash($f_admin->getPassword(), PASSWORD_DEFAULT)])) return 2;
             else return 1; //? L'utilisateur n'a pas pu être inséré dans la BDD
         } else return 0; //? Le mail existe déjà en bdd
+    }
+
+    public function resetPassword(User $user): ?string
+    {
+        $uuid = Uuid::uuid6()->toString();
+        if ($this->exist($user->getEmail())) {
+            if ($this->sql("INSERT INTO password_reset (user_id, token, created_at) VALUES (:user_id, :token, :created_at)", ["user_id" => $user->getIdUser(), "token" => $uuid, "created_at" => date('Y-m-d H:i:s') ])) {
+                return $uuid;
+            } else return null;
+        } else return null;
     }
 }
