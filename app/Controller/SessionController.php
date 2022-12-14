@@ -5,7 +5,9 @@ namespace Controller;
 use AttributesRouter\Attribute\Route;
 use Model\Manager\UserManager;
 use Model\User;
+use PHPMailer\PHPMailer\Exception;
 use Service\Mailer;
+use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -158,7 +160,7 @@ class SessionController extends CoreController
                 } elseif ($result == 1) {
                     $arguments['error'][] = 'Veuillez remplir tout les champs.';
                 } elseif ($result == 2) {
-                    $arguments['error'][] = 'Veuillez remplir tout les champs.';
+                    $arguments['error'][] = 'Les deux mots de passes ne sont pas identiques.';
                 } elseif ($result == 5) {
                     $as->logout(null);
                     $arguments['success'][] = 'Votre mot de passe à bien été modifié. Veuillez <a href="' . $arguments['router']->generateUrl('session-login') . '">vous reconnecter</a>';
@@ -175,7 +177,7 @@ class SessionController extends CoreController
     }
 
     /**
-     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws Exception
      * @throws SyntaxError
      * @throws RuntimeError
      * @throws LoaderError
@@ -183,6 +185,7 @@ class SessionController extends CoreController
     #[Route('/reset-password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
     public function reset($arguments = [])
     {
+        dump($arguments);
         $as = new AccountUtils($arguments['session']);
         $um = new UserManager();
         $m = new Mailer();

@@ -7,6 +7,10 @@ use Model\Manager\UserManager;
 use Model\User;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class Mailer
 {
@@ -51,12 +55,17 @@ class Mailer
     public function sendResetPasswordLink(User $user, Router $router): bool
     {
         $um = new UserManager();
-        $url = $router->generateUrl('session-resetpassword-token', ['token' => $um->resetPassword($user)]);
+        $url = $_ENV['BASE_URI'] . $router->generateUrl('session-resetpassword-token', ['token' => $um->resetPassword($user)]);
 
         $this->mailer->addAddress($user->getEmail());
 
         $this->mailer->Subject = 'Réinitialisation du mot de passe';
-        $this->mailer->Body = 'Voici le lien de réinitialisation de votre mot de passe : ' . $url;
+        $this->mailer->isHTML(true);
+        try {
+            $this->mailer->Body = $twig->render('partials/emails/reset-password.twig', ['resetLink' => $url]);
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
+            return false;
+        }
 
         try {
             $this->mailer->send();

@@ -19,7 +19,7 @@ class CoreController
      */
     public function show($viewName, $viewData = [])
     {
-        $loader = new FilesystemLoader(__DIR__ . './../Views');
+        $loader = new FilesystemLoader(__DIR__ . '/../Views');
         $twig = new Environment($loader);
 
         $twig->addFunction(new TwigFunction('dump', function (mixed $var, mixed ...$vars) {
@@ -30,6 +30,8 @@ class CoreController
            return $router->generateUrl($route, $parameters);
         }));
 
+        $viewData['yoplo'] = "ma bite";
+        dump($viewData);
         echo $twig->render($viewName, $viewData);
     }
 
