@@ -1,13 +1,12 @@
 <?php
 
+use AttributesRouter\Router;
 use Controller\CoreController;
 use Controller\MainController;
-use Controller\AdminController;
 use Controller\SessionController;
+use Dotenv\Dotenv;
 use Util\AccountUtils;
 use Util\Session;
-use AttributesRouter\Router;
-use Dotenv\Dotenv;
 
 session_start();
 
@@ -29,12 +28,11 @@ $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 if ($match) {
-    $params[] = $match['params'];
+    $params['params'] = $match['params'];
 
     $params['router'] = $router;
     $params['session'] = new Session();
     $params['account'] = new AccountUtils($params['session']);
-    $params['env'] = $dotenv;
 
     $controller = new $match['class']();
     $controller->{$match['method']}($params);

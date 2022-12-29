@@ -18,7 +18,11 @@ abstract class Database {
             'mysql:host='.$this->hostname.';dbname='.$this->dbname.'',
              $_ENV["DB_USERNAME"],
              $_ENV["DB_PASSWORD"],
-             array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES UTF8', PDO::ATTR_ERRMODE => 'true', PDO::ERRMODE_EXCEPTION => 'true'));
+//             array(
+//                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES UTF8',
+//                 PDO::ATTR_ERRMODE => 'true',
+//                 PDO::ERRMODE_EXCEPTION => 'true')
+        );
     }
 
     public function sql($f_sql = "", $f_prep = [], $f_fetchmode = null) {
