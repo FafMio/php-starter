@@ -2,6 +2,9 @@
 
 namespace Model\Manager;
 
+use DateTime;
+use Enum\PasswordResetStatus;
+use Exception;
 use Model\Interface\CrudInterface;
 use Model\User;
 use PDO;
@@ -18,12 +21,12 @@ class UserManager extends Database implements CrudInterface
 
     public function get(string $obj): ?User
     {
-        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE id=:id", ['id' => $obj], [PDO::FETCH_CLASS, 'User'])->fetch();
+        return $this->sql("SELECT id,email,firstname,lastname FROM user WHERE id=:id", ['id' => $obj], [PDO::FETCH_CLASS, User::class])->fetch();
     }
 
     public function getAll(int $limit, int $offset, array $data): ?array
     {
-        return $this->sql("SELECT * EXCEPT(password) FROM user WHERE 1", [], [PDO::FETCH_CLASS, 'User'])->fetchAll();
+        return $this->sql("SELECT id,email,firstname,lastname FROM user WHERE 1", [], [PDO::FETCH_CLASS, 'User'])->fetchAll();
     }
 
     public function add(User $obj): ?User
@@ -92,6 +95,28 @@ class UserManager extends Database implements CrudInterface
         } else return 0; // Mauvais mot de passe actuel
     }
 
+    public function generatePasswordResetToken(User $user): ?string
+    {
+        $uuid = Uuid::uuid6()->toString();
+        if ($this->exist($user->getEmail())) {
+            if ($this->sql("INSERT INTO password_reset (user_id, token, created_at) VALUES (:user_id, :token, :created_at)", ["user_id" => $user->getIdUser(), "token" => $uuid, "created_at" => date('Y-m-d H:i:s')])) {
+                return $uuid;
+            } else return null;
+        } else return null;
+    }
+
+    public function resetPassword(User $f_admin, $f_new = []): int
+    { //$this->sql("SELECT password FROM user WHERE email=:email LIMIT 1", ['email' => $f_admin->getPassword()])->fetch()['password']
+        if (isset($f_new[0]) && isset($f_new[1])) {
+            if ($f_new[0] == $f_new[1]) {
+                if ($this->sql("UPDATE user SET password=:new WHERE email=:email", ['email' => $f_admin->getEmail(), 'new' => password_hash($f_new[1], PASSWORD_DEFAULT)])) {
+                    if ($this->sql("DELETE FROM password_reset WHERE user_id = :user_id", ['user_id' => $f_admin->getIdUser()])) return 5;// Ca marche !
+                    else return 4; // Ca a pas delete le token
+                } else return 3; // Y'a un pépin
+            } else return 2; // Les deux nouveaux ne sont pas pareils
+        } else return 1; // Il manque les 2 nouveaux
+    }
+
     public function register($f_admin): int
     {
         if (!$this->exist($f_admin->getEmail())) {
@@ -100,13 +125,40 @@ class UserManager extends Database implements CrudInterface
         } else return 0; //? Le mail existe déjà en bdd
     }
 
-    public function resetPassword(User $user): ?string
+    /**
+     * @param string $token
+     * @return PasswordResetStatus
+     * @throws Exception
+     */
+    public function isResetPasswordTokenValid(string $token): PasswordResetStatus
     {
-        $uuid = Uuid::uuid6()->toString();
-        if ($this->exist($user->getEmail())) {
-            if ($this->sql("INSERT INTO password_reset (user_id, token, created_at) VALUES (:user_id, :token, :created_at)", ["user_id" => $user->getIdUser(), "token" => $uuid, "created_at" => date('Y-m-d H:i:s') ])) {
-                return $uuid;
-            } else return null;
-        } else return null;
+        if (!empty($token)) {
+            $passwordReset = $this->sql("SELECT * FROM password_reset WHERE token = :token", ['token' => $token])->fetchObject();
+            if ($passwordReset !== false) {
+                $tokenDate = new DateTime($passwordReset->created_at);
+                $currentDate = new DateTime('now');
+                if ($tokenDate->getTimestamp() < (time() + 1800)) {
+                    return PasswordResetStatus::VALID;
+                } else {
+                    return PasswordResetStatus::EXPIRED;
+                }
+            } else {
+                return PasswordResetStatus::UNKNOWN;
+            }
+        } else {
+            return PasswordResetStatus::INVALID;
+        }
+    }
+
+    public function getResetPasswordUser(string $token): ?User
+    {
+        if (!empty($token)) {
+            $passwordReset = $this->sql("SELECT * FROM password_reset WHERE token = :token", ['token' => $token])->fetchObject();
+            if ($passwordReset !== false) {
+                return $this->get($passwordReset->user_id);
+            }
+        } else {
+            return null;
+        }
     }
 }

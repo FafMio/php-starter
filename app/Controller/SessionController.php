@@ -3,11 +3,11 @@
 namespace Controller;
 
 use AttributesRouter\Attribute\Route;
+use Enum\PasswordResetStatus;
 use Model\Manager\UserManager;
 use Model\User;
 use PHPMailer\PHPMailer\Exception;
 use Service\Mailer;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -185,7 +185,6 @@ class SessionController extends CoreController
     #[Route('/reset-password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
     public function reset($arguments = [])
     {
-        dump($arguments);
         $as = new AccountUtils($arguments['session']);
         $um = new UserManager();
         $m = new Mailer();
@@ -199,7 +198,7 @@ class SessionController extends CoreController
 
             if ((isset($email) && !empty($email))) {
                 if ($um->exist($email)) {
-                    $m->sendResetPasswordLink($um->getFromEmail($email), $arguments['router']);
+                    $m->sendResetPasswordLink($um->getFromEmail($email), $arguments['router'], $this->twig);
                 }
 
                 $arguments['success'][] = 'Si un compte existe avec cette adresse email, vous aller recevoir un mail contenant un lien permanent de changer votre mot de passe.';
@@ -210,22 +209,57 @@ class SessionController extends CoreController
         $this->show('pages/admin/reset.twig', $arguments);
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws \Exception
+     */
     #[Route('/reset-password/{token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
     public function resetToken($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
+        $um = new UserManager();
 
         if ($as->isConnected()) {
             header('Location: ' . $arguments['router']->generateUrl('session-account'));
         }
 
-        if ($post = $_POST ?? null) {
-            $email = $post['email'];
+        $token = $arguments['params']['token'];
+        if (!empty($token)) {
+            $result = $um->isResetPasswordTokenValid($token);
 
-            if ((isset($email) && !empty($email))) {
-                $arguments['success'][] = 'Si un compte existe avec cette adresse email, vous aller recevoir un mail contenant un lien permanent de changer votre mot de passe.';
+            if ($result == PasswordResetStatus::VALID) {
+
+                if (isset($_POST['submitted'])) {
+                    $user = $um->getResetPasswordUser($token);
+                    $resetResult = $um->resetPassword($user, [$_POST['new_password'], $_POST['new_password']]);
+
+                    if ($resetResult == 5) {
+                        $arguments['success'][] = "Votre mot de passe à été changé avec succès. <br> Vous pouvez dès maintenant vous connecter avec le nouveau mot de passe.";
+                        $arguments['hideForm'] = true;
+                    } else if ($resetResult == 4) {
+                        $arguments['success'][] = "Votre mot de passe à été changé avec succès. <br> Vous pouvez dès maintenant vous connecter avec le nouveau mot de passe.";
+                        $arguments['error'][] = "Une erreur est survenue.";
+                        $arguments['hideForm'] = true;
+                    } else if ($resetResult == 3) {
+                        $arguments['error'][] = "Une erreur est survenue.";
+                    } else if ($resetResult == 2) {
+                        $arguments['error'][] = "Les deux mots de passe ne sont pas identiques";
+                    } else if ($resetResult == 1) {
+                        $arguments['error'][] = "Veuillez remplir tout les champs.";
+                    } else {
+                        $arguments['error'][] = "Une erreur est survenue.";
+                    }
+                    $this->show("pages/admin/account/reset-password.twig", $arguments);
+                } else {
+                    $this->show("pages/admin/account/reset-password.twig", $arguments);
+                }
+            } else {
+                $arguments['error'][] = "Ce lien n'est plus valide ou n'existe pas.";
+                $arguments['hideForm'] = true;
+                $this->show("pages/admin/account/reset-password.twig", $arguments);
             }
         }
-
     }
 }

@@ -29,6 +29,7 @@ class Mailer
         $this->mailer->Username = $_ENV['SMTP_USER'];
         $this->mailer->Password = $_ENV['SMTP_PASSWORD'];
         $this->mailer->Port = $_ENV['SMTP_PORT'];
+        $this->mailer->CharSet = "UTF-8";
 
         $this->mailer->setFrom($_ENV['SMTP_DEFAULT_FROM'], 'PHP Starter');
     }
@@ -52,10 +53,10 @@ class Mailer
     /**
      * @throws Exception
      */
-    public function sendResetPasswordLink(User $user, Router $router): bool
+    public function sendResetPasswordLink(User $user, Router $router, Environment $twig): bool
     {
         $um = new UserManager();
-        $url = $_ENV['BASE_URI'] . $router->generateUrl('session-resetpassword-token', ['token' => $um->resetPassword($user)]);
+        $url = $_ENV['BASE_URI'] . $router->generateUrl('session-resetpassword-token', ['token' => $um->generatePasswordResetToken($user)]);
 
         $this->mailer->addAddress($user->getEmail());
 
