@@ -11,12 +11,24 @@
                     <i class="fas fa-chevron-down ms-2"></i>
                 </a>
                 <ul class="dropdown-menu text-small gap-1 p-2" data-popper-placement="bottom-start">
+                    {# Lien mon compte #}
                     <li><a class="dropdown-item rounded-2" href="{{ route(router, 'session-account') }}"><i class="fas fa-user me-2"></i> Mon compte</a></li>
-                    <li><a class="dropdown-item rounded-2" href="{{ route(router, 'session-change-password') }}"><i class="fas fa-key me-2"></i> Mot de passe</a></li>
-                    <li><a class="dropdown-item rounded-2" href="{{ route(router, 'session-2fa') }}"><i class="fas fa-qrcode me-2"></i> Double authentification</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
+
+                    {# Sous menu sécurité #}
+                    <li class="nav-item dropdown">
+                        <a class="dropdown-item rounded-2" href="#">
+                            <i class="fas fa-lock me-2"></i> Sécurité<span class="float-end"><i class="fas fa-chevron-right"></i></span>
+                        </a>
+                        <ul class="submenu dropdown-menu gap-1 p-2">
+                            <li><a class="dropdown-item rounded-2" href="{{ route(router, 'session-change-password') }}"><i class="fas fa-key me-2"></i> Mot de passe</a></li>
+                            <li><a class="dropdown-item rounded-2" href="{{ route(router, 'session-2fa') }}"><i class="fas fa-qrcode me-2"></i> Double authentification</a></li>
+                        </ul>
                     </li>
+
+                    {# Séparateur #}
+                    <li><hr class="dropdown-divider"></li>
+
+                    {# Déconnexion #}
                     <li><a class="dropdown-item rounded-2 text-danger" href="{{ route(router, 'session-logout') }}"><i class="fas fa-sign-out me-2"></i> Déconnexion</a></li>
                 </ul>
             </div>
@@ -27,4 +39,40 @@
             </div>
         {% endif %}
     </a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+// make it as accordion for smaller screens
+            if (window.innerWidth < 992) {
+
+                // close all inner dropdowns when parent is closed
+                document.querySelectorAll('.navbar .dropdown').forEach(function(everydropdown){
+                    everydropdown.addEventListener('hidden.bs.dropdown', function () {
+                        // after dropdown is hidden, then find all submenus
+                        this.querySelectorAll('.submenu').forEach(function(everysubmenu){
+                            // hide every submenu as well
+                            everysubmenu.style.display = 'none';
+                        });
+                    })
+                });
+
+                document.querySelectorAll('.dropdown-menu a').forEach(function(element){
+                    element.addEventListener('click', function (e) {
+                        let nextEl = this.nextElementSibling;
+                        if(nextEl && nextEl.classList.contains('submenu')) {
+                            // prevent opening link if link needs to open dropdown
+                            e.preventDefault();
+                            if(nextEl.style.display == 'block'){
+                                nextEl.style.display = 'none';
+                            } else {
+                                nextEl.style.display = 'block';
+                            }
+
+                        }
+                    });
+                })
+            }
+// end if innerWidth
+        });
+    </script>
 </header>
