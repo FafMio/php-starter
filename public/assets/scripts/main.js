@@ -20,3 +20,16 @@ forms.forEach(form => {
         form.classList.add('was-validated')
     }, false);
 })
+
+let toCopy = document.querySelectorAll('[to-copy]');
+toCopy.forEach(elem => {
+    elem.addEventListener('click', e => {
+        try {
+            navigator.clipboard.writeText(elem.innerHTML).then(r => {
+                console.log("ca a bien copier : ", elem.innerHTML)
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    })
+})

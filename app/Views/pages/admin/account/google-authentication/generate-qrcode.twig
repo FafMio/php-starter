@@ -36,6 +36,10 @@
                     {% if hideForm is not defined %}
                         <div class="mb-4">
                             <img src="{{ google_secret }}" alt="">
+                            <div class="alert alert-primary">
+                                Clé de configuration : <u class="fw-bold" to-copy="" style="cursor:pointer;">{{ secret }}</u>
+                                <p class="text-muted mb-0 fst-italic">Cliquer sur la clé pour la copier.</p>
+                            </div>
                             <div class="text-start">
                                 <p>Étapes à suivre :</p>
                                 <ul class="list-group list-group-numbered">

@@ -368,6 +368,7 @@ class SessionController extends CoreController
                         $s->secret = $secret;
                     }
                     $arguments['google_secret'] = $das->generateQrCodeImage($as->getUser(), $s->secret);
+                    $arguments['secret'] = $s->secret;
                 } catch (IncompatibleWithGoogleAuthenticatorException|InvalidCharactersException|SecretKeyTooShortException $e) {
                     dump($e);
                     $arguments['error'][] = "Une erreur est survenue. Veuillez réessayer plus tard.";
