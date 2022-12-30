@@ -8,7 +8,8 @@
     "eredost/attributes-router": "^1.0",
     "phpmailer/phpmailer": "^6.7",
     "ramsey/uuid": "^4.6",
-    "pragmarx/google2fa": "^8.0"
+    "pragmarx/google2fa": "^8.0",
+    "ext-gd": "*"
   },
   "repositories": [
     {
