@@ -1,0 +1,72 @@
+{% extends "base.twig" %}
+
+{% block title %}
+    Activation de la double authentification - {{ parent() }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mx-auto mt-5 text-center">
+                <form method="post" class="needs-validation" novalidate>
+                    <input type="hidden" name="submitted" value="true">
+                    <img class="mb-4" src="https://static.hephe.net/images/profile/sylweb_logo.svg" alt="" width="72"
+                         height="57">
+                    <h1 class="h3 mb-3 fw-normal">Connexion à double facteurs</h1>
+
+                    {% if error is not empty %}
+                        {% for err in error %}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                {{ err|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if success is not empty %}
+                        {% for succ in success %}
+                            <div class="alert alert-dismissible alert-success">
+                                {#                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button> #}
+                                {{ succ|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if hideForm is not defined %}
+                        <div class="mb-4">
+                            <img src="{{ google_secret }}" alt="">
+                            <div class="text-start">
+                                <p>Étapes à suivre :</p>
+                                <ul class="list-group list-group-numbered">
+                                    <li>Scannez le QR Code depuis l'application <span class="fw-bold">Google Auth</span>.</li>
+                                    <li>Entrez le code affiché sur votre téléphone dans la case ci-dessous.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-3 has-validation">
+                            <input type="text" class="form-control" id="submittedCode" name="submittedCode" placeholder=" " required max="6">
+                            <label for="submittedCode">Code de confirmation</label>
+                            <div class="invalid-feedback">Le code n'est pas valide.</div>
+                        </div>
+
+                        <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">Vérifier le code</button>
+                        <a href="{{ route(router, 'session-account') }}" class="btn btn-secondary btn-sm mb-3 w-100">Je ne veux plus activer la double authentification</a>
+                    {% endif %}
+
+                    {% if showDelete is defined %}
+                        <div class="mb-4 text-start">
+                            <p>Votre authentification à deux facteurs a déjà été inscrite.</p>
+                        </div>
+
+                        <input type="hidden" name="delete" value="true">
+                        <button class="w-100 btn btn-lg btn-danger mb-3" type="submit">Supprimer la double authentification</button>
+                    {% endif %}
+                    <a href="{{ route(router, 'session-account') }}" class="btn btn-link mb-3">Retour à mon compte</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

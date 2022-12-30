@@ -7,6 +7,10 @@ use Enum\PasswordResetStatus;
 use Model\Manager\UserManager;
 use Model\User;
 use PHPMailer\PHPMailer\Exception;
+use PragmaRX\Google2FA\Exceptions\IncompatibleWithGoogleAuthenticatorException;
+use PragmaRX\Google2FA\Exceptions\InvalidCharactersException;
+use PragmaRX\Google2FA\Exceptions\SecretKeyTooShortException;
+use Service\DoubleAuthenticationService;
 use Service\Mailer;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -74,8 +78,10 @@ class SessionController extends CoreController
     #[Route('/login', name: 'session-login', methods: ['GET', 'POST'])]
     public function login($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $s = $arguments['session'];
+        $as = new AccountUtils($s);
         $um = new UserManager();
+        $das = new DoubleAuthenticationService();
 
         if ($as->isConnected()) {
             header('Location: ' . $arguments['router']->generateUrl('main-home'));
@@ -89,8 +95,15 @@ class SessionController extends CoreController
 
                 if ($um->exist($email)) {
                     if ($um->checkCredentials($email, $psw)) {
-                        $as->login($um->getFromEmail($email));
-                        header('Location: ' . $arguments['router']->generateUrl('session-account'));
+                        $user = $um->getFromEmail($email);
+                        if ($user->getGoogleSecret() !== null) {
+                            $s->needGoogleauthcheck = true;
+                            $s->tempVerif = $user;
+                            header('Location: ' . $arguments['router']->generateUrl('session-login-2fa'));
+                        } else {
+                            $as->login($user);
+                            header('Location: ' . $arguments['router']->generateUrl('session-account'));
+                        }
                     } else {
                         $arguments['error'] = [
                             'Identifiants invalides, veuillez les vérifier.',
@@ -111,6 +124,40 @@ class SessionController extends CoreController
         $this->show('pages/admin/login.twig', $arguments);
     }
 
+    #[Route('/login/2fa', name: 'session-login-2fa', methods: ['GET', 'POST'])]
+    public function loginTwo($arguments = [])
+    {
+        $s = $arguments['session'];
+        $as = new AccountUtils($s);
+        $um = new UserManager();
+        $das = new DoubleAuthenticationService();
+
+//        if ($as->isConnected()) {
+//            header('Location: ' . $arguments['router']->generateUrl('main-home'));
+//        }
+
+        if (isset($s->tempVerif)) {
+            if (isset($s->needGoogleauthcheck) && $s->needGoogleauthcheck === true) {
+                if (isset($_POST['submittedCode'])) {
+                    $code = $_POST['submittedCode'];
+                    if ($das->checkCode($s->tempVerif->getGoogleSecret(), $code)) {
+                        $as->login($s->tempVerif);
+                        unset($s->needGoogleauthcheck);
+                        header('Location: ' . $arguments['router']->generateUrl('session-account'));
+                    } else {
+                        $arguments['error'][] = "Code invalide, veuillez réessayer.";
+                    }
+                }
+            } else {
+                header('Location: ' . $arguments['router']->generateUrl('session-login'));
+            }
+        } else {
+            header('Location: ' . $arguments['router']->generateUrl('session-login'));
+        }
+
+        $this->show('pages/admin/login-2fa.twig', $arguments);
+    }
+
     /**
      * @throws SyntaxError
      * @throws RuntimeError
@@ -129,7 +176,6 @@ class SessionController extends CoreController
         $this->show('pages/admin/account/account.twig', $arguments);
     }
 
-
     #[Route('/logout', name: 'session-logout', methods: ['GET'])]
     public function logout($arguments = [])
     {
@@ -137,7 +183,7 @@ class SessionController extends CoreController
         $as->logout($arguments['router']->generateUrl('main-home'));
     }
 
-    #[Route('/change-password', name: 'session-changepassword', methods: ['GET', 'POST'])]
+    #[Route('/security/change-password', name: 'session-changepassword', methods: ['GET', 'POST'])]
     public function changePassword($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
@@ -182,7 +228,7 @@ class SessionController extends CoreController
      * @throws RuntimeError
      * @throws LoaderError
      */
-    #[Route('/reset-password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
+    #[Route('/security/password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
     public function reset($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
@@ -215,7 +261,7 @@ class SessionController extends CoreController
      * @throws LoaderError
      * @throws \Exception
      */
-    #[Route('/reset-password/{token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
+    #[Route('/security/password/{token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
     public function resetToken($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
@@ -261,5 +307,74 @@ class SessionController extends CoreController
                 $this->show("pages/admin/account/reset-password.twig", $arguments);
             }
         }
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[Route('/security/2fa', name: 'session-2fa', methods: ['GET', 'POST'])]
+    public function doubleAuthentication($arguments = [])
+    {
+        $s = $arguments['session'];
+        $as = new AccountUtils($s);
+        $um = new UserManager();
+        $das = new DoubleAuthenticationService();
+
+
+        if (!$as->isConnected()) {
+            header('Location: ' . $arguments['router']->generateUrl('session-login'));
+        }
+
+        if (isset($_POST['submitted'])) {
+            if (isset($_POST['submittedCode'])) {
+                if ($das->checkCode($s->secret, $_POST['submittedCode'])) {
+                    $updatedUser = $as->getUser();
+                    $updatedUser->setGoogleSecret($s->secret);
+                    $result = $um->update($updatedUser);
+                    if ($result instanceof User) {
+                        $arguments['success'][] = "Code validé avec succès !";
+                        $arguments['hideForm'] = true;
+                    } else {
+                        $arguments['error'][] = "Une erreur c'est produite, veuillez réessayer plus tard.";
+                    }
+                    unset($s->secret);
+                } else {
+                    $arguments['error'][] = "Code non valide.";
+                }
+            }
+
+            if (isset($_POST['delete'])) {
+                if ($_POST['delete'] == 'true') {
+                    $as->getUser()->setGoogleSecret(null);
+                    $result = $um->update($as->getUser());
+                    if ($result instanceof User) {
+                        $arguments['success'][] = "Double authentification supprimé avec succès.";
+                        $arguments['hideForm'] = true;
+                    } else {
+                        $arguments['error'][] = "Une erreur c'est produite, veuillez réessayer plus tard.";
+                    }
+                }
+            }
+        } else {
+            if ($as->getUser()->getGoogleSecret() !== null) {
+                $arguments['hideForm'] = true;
+                $arguments['showDelete'] = true;
+            } else {
+                try {
+                    if (!isset($s->secret)) {
+                        $secret = $das->generateNewSecret();
+                        $s->secret = $secret;
+                    }
+                    $arguments['google_secret'] = $das->generateQrCodeImage($as->getUser(), $s->secret);
+                } catch (IncompatibleWithGoogleAuthenticatorException|InvalidCharactersException|SecretKeyTooShortException $e) {
+                    dump($e);
+                    $arguments['error'][] = "Une erreur est survenue. Veuillez réessayer plus tard.";
+                }
+            }
+        }
+
+        $this->show('pages/admin/account/google-authentication/generate-qrcode.twig', $arguments);
     }
 }

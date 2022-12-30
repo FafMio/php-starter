@@ -13,6 +13,6 @@ interface CrudInterface {
     public function add(User $obj): ?User;
     public function del(User $obj): bool;
 
-    public function update(User $obj): ?User;
+    public function update(User $obj): mixed;
 
 }

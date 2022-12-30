@@ -1,0 +1,39 @@
+{% extends "base.twig" %}
+
+{% block title %}
+    Connexion - {{ parent() }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mx-auto mt-5 text-center">
+                <form method="post" class="needs-validation" novalidate>
+                    <input type="hidden" name="submittedCode" value="true">
+                    <img class="mb-4" src="https://static.hephe.net/images/profile/sylweb_logo.svg" alt="" width="72" height="57">
+                    <h1 class="h3 mb-3 fw-normal">Vérification double facteurs</h1>
+
+                    {% if error is not empty %}
+                        {% for err in error %}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                {{ err|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="form-floating mb-3 has-validation">
+                        <input type="text" class="form-control" id="submittedCode" name="submittedCode" placeholder=" ">
+                        <label for="submittedCode">Code de vérification</label>
+                        <div class="invalid-feedback">Veuillez rentrer un code.</div>
+                    </div>
+
+                    <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">Verifier le code</button>
+                    <a href="{{ route(router, 'main-home') }}" class="btn btn-link mb-3">Retour à l'accueil</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

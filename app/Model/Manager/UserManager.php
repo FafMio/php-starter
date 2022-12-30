@@ -50,17 +50,18 @@ class UserManager extends Database implements CrudInterface
         else return false;
     }
 
-    public function update(User $obj): ?User
+    public function update(User $obj): mixed
     {
         if ($this->sql(
-            "UPDATE user SET :email, :firstname, :lastname WHERE id=:id",
+            "UPDATE user SET email = :email, firstname = :firstname, lastname = :lastname, google_secret = :google_secret WHERE id=:id",
             [
                 'id' => $obj->getIdUser(),
                 'email' => $obj->getEmail(),
                 'firstname' => $obj->getFirstname(),
                 'lastname' => $obj->getLastname(),
+                'google_secret' => $obj->getGoogleSecret(),
             ]
-        )->fetch()) return $obj;
+        )->execute()) return $obj;
         else return null;
     }
 
