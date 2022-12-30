@@ -183,7 +183,7 @@ class SessionController extends CoreController
         $as->logout($arguments['router']->generateUrl('main-home'));
     }
 
-    #[Route('/security/change-password', name: 'session-changepassword', methods: ['GET', 'POST'])]
+    #[Route('/security/change-password', name: 'session-change-password', methods: ['GET', 'POST'])]
     public function changePassword($arguments = [])
     {
         $as = new AccountUtils($arguments['session']);
