@@ -137,7 +137,6 @@ class UserManager extends Database implements CrudInterface
             $passwordReset = $this->sql("SELECT * FROM password_reset WHERE token = :token", ['token' => $token])->fetchObject();
             if ($passwordReset !== false) {
                 $tokenDate = new DateTime($passwordReset->created_at);
-                $currentDate = new DateTime('now');
                 if ($tokenDate->getTimestamp() < (time() + 1800)) {
                     return PasswordResetStatus::VALID;
                 } else {
@@ -157,9 +156,23 @@ class UserManager extends Database implements CrudInterface
             $passwordReset = $this->sql("SELECT * FROM password_reset WHERE token = :token", ['token' => $token])->fetchObject();
             if ($passwordReset !== false) {
                 return $this->get($passwordReset->user_id);
+            } else {
+                return null;
             }
         } else {
             return null;
         }
+    }
+
+    /**
+     * Delete from database all the generated token for reset password.
+     * This function must be used my the deleteAccount.
+     *
+     * @param User $user
+     * @return bool
+     */
+    public function removeAllResetToken(User $user): bool
+    {
+        return $this->sql('DELETE FROM password_reset WHERE user_id = :user_id', ['user_id' => $user->getIdUser()]);
     }
 }

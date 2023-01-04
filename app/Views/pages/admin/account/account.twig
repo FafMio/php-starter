@@ -26,19 +26,49 @@
                                value="{{ session.loggedIn.lastname }}" readonly>
                         <label for="lastname">Nom</label>
                     </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="email" name="email" placeholder=" "
+                               value="{{ session.loggedIn.email }}" readonly>
+                        <label for="email">Adresse email</label>
+                    </div>
 
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary disabled" disabled>Modifier mes informations
+                        <button type="button" class="btn btn-primary">Modifier mes informations</button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteAccount"><i class="fas fa-trash-alt me-2"></i>Supprimer mon
+                            compte
                         </button>
-                        <a href="{{ route(router, 'session-change-password') }}" class="btn btn-dark">Modifier mon mot de
-                            passe</a>
-                        <a href="{{ route(router, 'session-logout') }}" class="btn btn-outline-danger">Se
-                            deconnecter</a>
                     </div>
                 </div>
             </div>
 
         </div>
     </main>
+
+    <div class="modal fade" id="deleteAccount" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="deleteAccountLabel" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border border-danger border-1">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-danger" id="deleteAccountLabel">Supprimer mon compte</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>La suppression d'un compte est <span class="fw-bold">définitive</span> et <span class="fw-bold">irreversible</span>.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-danger" id="deleteAccount">Supprimer mon compte</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
+{% block scripts %}
+    {{ parent() }}
+    <script src="/assets/scripts/deleteAccount.js"></script>
+{% endblock %}
