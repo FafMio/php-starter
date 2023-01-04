@@ -51,4 +51,9 @@ class Session
     {
         unset($this->attributs[$name]);
     }
+
+    public function getTime(): ?int
+    {
+        return $this->sleepingtime;
+    }
 }

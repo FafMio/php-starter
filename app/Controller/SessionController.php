@@ -16,6 +16,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Util\AccountUtils;
+use Util\JsonResponse;
 
 class SessionController extends CoreController
 {
@@ -28,7 +29,7 @@ class SessionController extends CoreController
     #[Route('/register', name: 'session-register', methods: ['GET', 'POST'])]
     public function register($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $as = $arguments['account'];
         $um = new UserManager();
 
         if ($as->isConnected()) {
@@ -79,7 +80,7 @@ class SessionController extends CoreController
     public function login($arguments = [])
     {
         $s = $arguments['session'];
-        $as = new AccountUtils($s);
+        $as = $arguments['account'];
         $um = new UserManager();
         $das = new DoubleAuthenticationService();
 
@@ -128,7 +129,7 @@ class SessionController extends CoreController
     public function loginTwo($arguments = [])
     {
         $s = $arguments['session'];
-        $as = new AccountUtils($s);
+        $as = $arguments['account'];
         $um = new UserManager();
         $das = new DoubleAuthenticationService();
 
@@ -166,8 +167,8 @@ class SessionController extends CoreController
     #[Route('/account', name: 'session-account', methods: ['GET'])]
     public function session($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
-        $um = new UserManager();
+        $s = $arguments['session'];
+        $as = $arguments['account'];
 
         if (!$as->isConnected()) {
             header('Location: ' . $arguments['router']->generateUrl('session-login'));
@@ -179,14 +180,14 @@ class SessionController extends CoreController
     #[Route('/logout', name: 'session-logout', methods: ['GET'])]
     public function logout($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $as = $arguments['account'];
         $as->logout($arguments['router']->generateUrl('main-home'));
     }
 
     #[Route('/security/change-password', name: 'session-change-password', methods: ['GET', 'POST'])]
     public function changePassword($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $as = $arguments['account'];
         $um = new UserManager();
 
         if (!$as->isConnected()) {
@@ -231,7 +232,7 @@ class SessionController extends CoreController
     #[Route('/security/password', name: 'session-resetpassword', methods: ['GET', 'POST'])]
     public function reset($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $as = $arguments['account'];
         $um = new UserManager();
         $m = new Mailer();
 
@@ -264,7 +265,7 @@ class SessionController extends CoreController
     #[Route('/security/password/{token}', name: 'session-resetpassword-token', methods: ['GET', 'POST'])]
     public function resetToken($arguments = [])
     {
-        $as = new AccountUtils($arguments['session']);
+        $as = $arguments['account'];
         $um = new UserManager();
 
         if ($as->isConnected()) {
@@ -318,7 +319,7 @@ class SessionController extends CoreController
     public function doubleAuthentication($arguments = [])
     {
         $s = $arguments['session'];
-        $as = new AccountUtils($s);
+        $as = $arguments['account'];
         $um = new UserManager();
         $das = new DoubleAuthenticationService();
 
@@ -377,5 +378,21 @@ class SessionController extends CoreController
         }
 
         $this->show('pages/admin/account/google-authentication/generate-qrcode.twig', $arguments);
+    }
+
+    #[Route('/security/delete-account', name: 'session-logout', methods: ['POST'])]
+    public function deleteAccount($arguments = [])
+    {
+        $as = $arguments['account'];
+        $um = new UserManager();
+        if($confirmed = $_POST['confirmed']) {
+            if($um->removeAllResetToken($as->getUser())) {
+                if($um->del($as->getUser())) {
+                    new JsonResponse(["message" => "User deleted successfully"], 204);
+                }
+            } else {
+                new JsonResponse(["message" => "Partially deleted."], JsonResponse::HTTP_PARTIAL_CONTENT);
+            }
+        }
     }
 }
